@@ -15,29 +15,16 @@ func NewHandler(s *service.Service) *Handler {
 	}
 }
 
-func InitRoutes() *fiber.App {
+func InitRoutes(h Handler) *fiber.App {
 	app := fiber.New()
-	//Auth routes
+	//Authorization routes
 	auth := app.Group("/auth")
 	signIn := auth.Group("/sign-in")
-	signIn.Get("/", SignIn)
-	// signIn.Post("/client")
-	// signIn.Post("/trainer")
+	signIn.Get("/", h.SignInGet)
+	signIn.Post("/:role", h.SignInPost)
 	signUp := auth.Group("/sign-up")
-	signUp.Get("/", SignUp)
-	// signIn.Post("/client")
-	// signIn.Post("/trainer")
+	signUp.Get("/", h.SignUpGet)
+	signUp.Post("/:role", h.SignUpPost)
 
 	return app
-}
-
-func SignIn(ctx *fiber.Ctx) error {
-	// var trainer models.Trainer
-
-	return ctx.Status(200).SendString("Sign In page")
-}
-
-func SignUp(ctx *fiber.Ctx) error {
-	// ctx.Status(200).SendString("Sign Up page")
-	return ctx.Status(200).SendString("Sign Up page")
 }
