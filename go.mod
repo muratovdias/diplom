@@ -4,11 +4,12 @@ go 1.19
 
 require (
 	github.com/gofiber/fiber/v2 v2.41.0
-	github.com/joho/godotenv v1.4.0
+	github.com/gofiber/template v1.7.4
 	github.com/kamalshkeir/kenv v1.0.0
 	github.com/kamalshkeir/klog v1.0.0
 	github.com/kamalshkeir/korm v1.4.4
 	github.com/kamalshkeir/pgdriver v1.0.0
+	golang.org/x/crypto v0.5.0
 )
 
 require (
@@ -29,7 +30,6 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.44.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/term v0.4.0 // indirect

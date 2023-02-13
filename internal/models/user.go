@@ -1,18 +1,15 @@
 package models
 
-type Trainer struct {
-	ID       int    `korm:"pk" json:"id"`
-	Name     string `korm:"size:50" json:"name"`
-	Username string `korm:"size:50;iunique" json:"username"`
-	Email    string `korm:"size:50;iunique" json:"email"`
-	Password string `json:"password"`
+type User struct {
+	ID      int    `korm:"pk" json:"id"`
+	Name    string `korm:"size:50" json:"name"`
+	Surname string `korm:"size:50" json:"surname"`
+	Email   string `korm:"size:50;iunique" json:"email"`
+	Pwd     string `korm:"size:250" json:"password"`
 }
 
-type Client struct {
-	ID       int    `korm:"pk"`
-	Name     string `korm:"size:50"`
-	Username string `korm:"size:50;iunique"`
-	Email    string `korm:"size:50;iunique"`
+type SignIn struct {
+	Email    string
 	Password string
 }
 
