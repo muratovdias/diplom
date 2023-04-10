@@ -15,10 +15,12 @@ func (h *Handler) GetHome(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		// fmt.Println(trainings[0].Role)
 		pageDate := models.TrainerHomePage{
 			User:      user,
 			Trainings: trainings,
 		}
+
 		if err := h.templExecute(w, "./ui/trainings.html", pageDate); err != nil {
 			return
 		}

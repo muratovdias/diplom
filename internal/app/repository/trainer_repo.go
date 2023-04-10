@@ -31,7 +31,8 @@ func (t *TrainerRepo) SetSchedule(id int, schedule map[string][]string) error {
 	if err != nil {
 		panic(err)
 	}
-	stmt, err := t.db.Prepare("INSERT INTO trainer_schedule(user_id, date) VALUES($1, $2)")
+	stmt, err := t.db.Prepare(`INSERT INTO trainer_schedule(user_id, date) 
+								VALUES($1, $2)`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
@@ -63,7 +64,8 @@ func (t *TrainerRepo) SetSchedule(id int, schedule map[string][]string) error {
 func (t *TrainerRepo) GetFullTrainerInfo(id int) (models.TrainerInfo, error) {
 	var info models.TrainerInfo
 	query := `SELECT user_id, full_name, email, speciality, phone, adress, image, bio, twitter, instagram, facebook
-			FROM users INNER JOIN trainer
+			FROM users 
+			INNER JOIN trainer
 			USING (user_id)
 			WHERE user_id=$1`
 	row := t.db.QueryRow(query, id)
@@ -76,7 +78,8 @@ func (t *TrainerRepo) GetFullTrainerInfo(id int) (models.TrainerInfo, error) {
 func (t *TrainerRepo) ViewAllTrainings(id int) ([]models.Training, error) {
 	var trainings []models.Training
 	query := `SELECT full_name, note, date, role
-			FROM client_schedule c INNER JOIN users u
+			FROM client_schedule c 
+			INNER JOIN users u
 			ON c.user_id = u.user_id
 			WHERE c.trainer_id=$1`
 	rows, err := t.db.Query(query, id)

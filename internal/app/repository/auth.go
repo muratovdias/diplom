@@ -27,8 +27,9 @@ func NewAuthRepository(db *sqlx.DB) *AuthRepo {
 }
 
 func (s *AuthRepo) CreateUser(user *models.User, img string) error {
-	row := s.db.QueryRow(`INSERT INTO users 
-	(full_name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id`,
+	row := s.db.QueryRow(`INSERT INTO users (full_name, email, password, role) 
+						VALUES ($1, $2, $3, $4) 
+						RETURNING user_id`,
 		user.FullName, user.Email, user.Password, user.Role)
 	var id int
 	if err := row.Scan(&id); err != nil {
@@ -36,7 +37,8 @@ func (s *AuthRepo) CreateUser(user *models.User, img string) error {
 		return err
 	}
 	if user.Role == "trainer" {
-		_, err := s.db.Exec(`INSERT INTO trainer (user_id, image) VALUES ($1, $2)`, id, template.URL(img))
+		_, err := s.db.Exec(`INSERT INTO trainer (user_id, image) 
+							VALUES ($1, $2)`, id, template.URL(img))
 		if err != nil {
 			fmt.Println(err.Error())
 			return err
@@ -49,7 +51,9 @@ func (s *AuthRepo) CreateUser(user *models.User, img string) error {
 
 func (s *AuthRepo) Authentication(email string) (models.User, error) {
 	var user models.User
-	err := s.db.Get(&user, "SELECT role, password FROM users WHERE email=$1", email)
+	err := s.db.Get(&user, `SELECT role, password 
+							FROM users 
+							WHERE email=$1`, email)
 	if err != nil {
 		fmt.Println("user", err.Error())
 		return user, fmt.Errorf("repo: Authentication: %w", err)
@@ -58,7 +62,9 @@ func (s *AuthRepo) Authentication(email string) (models.User, error) {
 }
 
 func (r *AuthRepo) UpdateToken(email, token string, token_duration time.Time) error {
-	query := `UPDATE users SET token=$1, token_duration=$2 WHERE email=$3`
+	query := `UPDATE users 
+			SET token=$1, token_duration=$2 
+			WHERE email=$3`
 	_, err := r.db.Exec(query, token, token_duration, email)
 	if err != nil {
 		return fmt.Errorf("repo: UpdateToken: %w", err)
@@ -68,7 +74,9 @@ func (r *AuthRepo) UpdateToken(email, token string, token_duration time.Time) er
 
 func (r *AuthRepo) GetUserByToken(token string) (models.User, error) {
 	var user models.User
-	query := "SELECT user_id, full_name, email, role, token_duration FROM users WHERE token=$1"
+	query := `SELECT user_id, full_name, email, role, token_duration 
+				FROM users 
+				WHERE token=$1`
 	row := r.db.QueryRow(query, token)
 	err := row.Scan(&user.ID, &user.FullName, &user.Email, &user.Role, &user.TokenDuration)
 	if err != nil {

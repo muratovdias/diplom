@@ -39,7 +39,7 @@ func (h *Handler) SetClientTraining(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("times ", times)
+	// fmt.Println("times ", times)
 	http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 }
 
@@ -50,6 +50,7 @@ func (h *Handler) ClientTrainings(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	fmt.Println(trainings)
 	pageDate := models.TrainerHomePage{
 		User:      user,
 		Trainings: trainings,
@@ -60,7 +61,12 @@ func (h *Handler) ClientTrainings(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) CanlcelTraining(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(ctxUserKey).(models.User)
 	date := r.URL.Query().Get("date")
-	fmt.Println(date)
+	fmt.Println(user.ID, date)
+	if err := h.service.Client.CancelTraining(user.ID, date); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/client/trainings", http.StatusSeeOther)
 }

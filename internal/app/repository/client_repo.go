@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -13,6 +14,7 @@ type Client interface {
 	GetAllTrainers() ([]models.Trainers, error)
 	SetTrainings(id, trainerID int, note string, dates []string) error
 	ViewTrainings(id int) ([]models.Training, error)
+	CancelTraining(id int, date string) error
 }
 
 type ClientRepo struct {
@@ -31,7 +33,9 @@ func (c *ClientRepo) ViewSchedule(id int) (map[string][]models.Time, error) {
 		panic(err)
 	}
 	schedule := make(map[string][]models.Time)
-	query := `SELECT date, available FROM trainer_schedule WHERE user_id=$1 AND date::date >= CURRENT_DATE::date`
+	query := `SELECT date, available 
+			FROM trainer_schedule 
+			WHERE user_id=$1 AND date::date >= CURRENT_DATE::date`
 	rows, err := c.db.Query(query, id)
 	if err != nil {
 		fmt.Println("view schedule ", err.Error())
@@ -77,24 +81,36 @@ func (c *ClientRepo) GetAllTrainers() ([]models.Trainers, error) {
 }
 
 func (c *ClientRepo) SetTrainings(id, trainerID int, note string, dates []string) error {
-	query := `INSERT INTO client_schedule(user_id, trainer_id, note, date) VALUES($1, $2, $3, $4)`
+	tx, err := c.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Printf("Error rolling back transaction: %v", err)
+		}
+	}()
+	query := `INSERT INTO client_schedule(user_id, trainer_id, note, date) 
+			VALUES($1, $2, $3, $4)`
 	for _, time := range dates {
-		_, err := c.db.Exec("SET TIME ZONE 'Asia/Almaty'")
+		_, err := tx.Exec("SET TIME ZONE 'Asia/Almaty'")
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		_, err = c.db.Exec(query, id, trainerID, note, time)
+		_, err = tx.Exec(query, id, trainerID, note, time)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		_, err = c.db.Exec(`UPDATE trainer_schedule SET available=false WHERE date=$1`, time)
+		_, err = tx.Exec(`UPDATE trainer_schedule 
+		SET available=false WHERE date=$1`, time)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
 	}
+	tx.Commit()
 	return nil
 }
 
@@ -110,7 +126,7 @@ func (c *ClientRepo) ViewTrainings(id int) ([]models.Training, error) {
 			WHERE c.user_id=$1`
 	rows, err := c.db.Query(query, id)
 	if err != nil {
-		fmt.Println("repo: View All Trainings: ", err.Error())
+		fmt.Println("repo: client: ViewTrainings: ", err.Error())
 		return trainings, err
 	}
 	i := 1
@@ -127,12 +143,48 @@ func (c *ClientRepo) ViewTrainings(id int) ([]models.Training, error) {
 		i++
 		trainings = append(trainings, training)
 	}
-	// fmt.Println(trainings)
 	return trainings, nil
 }
 
-
-func (c *ClientRepo) CancelTraining(id int, date string) error{
-	
+func (c *ClientRepo) CancelTraining(id int, date string) error {
+	tx, err := c.db.Begin()
+	if err != nil {
+		log.Printf("repo: client: CancelTraining: %v", err.Error())
+		return err
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Printf("Error rolling back transaction: %v", err)
+		}
+	}()
+	var trainer_id int
+	query1 := `SELECT trainer_id 
+				FROM client_schedule
+				WHERE user_id=$1 AND date=$2`
+	row := tx.QueryRow(query1, id, date)
+	if err := row.Scan(&trainer_id); err != nil {
+		log.Printf("repo: client: CancelTraining: %v", err.Error())
+		return err
+	}
+	query2 := `DELETE FROM client_schedule
+				WHERE user_id=$1 AND date=$2`
+	_, err = tx.Exec(query2, id, date)
+	if err != nil {
+		log.Printf("repo: client: CancelTraining: %v", err.Error())
+		return err
+	}
+	query3 := `UPDATE trainer_schedule 
+				SET available=true
+				WHERE user_id=$1 AND date=$2`
+	_, err = tx.Exec(query3, trainer_id, date)
+	if err != nil {
+		log.Printf("repo: client: CancelTraining: %v", err.Error())
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("repo: client: CancelTraining: %v", err.Error())
+		return err
+	}
 	return nil
 }
