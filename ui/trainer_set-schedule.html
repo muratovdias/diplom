@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/ui/css/trainer_home.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <title>Workout app</title>
+
+    <style>
+      #schedule {
+        margin-left: 5%;
+        margin-right: 5%;
+        margin-top: 15%;
+        text-align: center;
+      }
+      
+      .days {
+        display: grid;
+        grid-template-columns: repeat(7, 3fr);
+        grid-gap: 20px;
+      }
+      
+      .day {
+        border: 1px solid black;
+        border-radius: 5px;
+        padding: 10px;
+        background-color: #AEE2FF;
+        text-align: center;
+        font-size: 23px;
+      }
+      
+      .day > select {
+        width: 100%;
+      }
+      
+      select {
+        appearance: none;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        padding: 8px;
+        font-size: 16px;
+        font-family: 'Open Sans', sans-serif;
+        color: #333;
+        background-color: #fff;
+        background-image: linear-gradient(to bottom, #fff 0%, #e4e4e4 100%);
+        background-repeat: no-repeat;
+        background-position: center right;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+      }
+
+      select:hover {
+        border-color: #999;
+      }
+      
+      select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+      
+      select option {
+        color: #333;
+      }
+      
+      @media screen and (max-width: 767px) {
+        select {
+          width: 100%;
+        }
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-blue" style="background-color: darkblue;">
+    <div class="container">
+    <a class="navbar-brand" href="/" style="color: #fff;font-size: 25px">Workout app</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+
+        {{if eq .Role "trainer"}}
+          <li class="nav-item">
+            <a class="nav-link" href="/trainer/profile/{{.ID}}" style="color: #fff;">My profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/trainer/set-schedule" style="color: #fff;">Set schedule</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/trainer/schedule/{{.ID}}" style="color: #fff;">My schedule</a>
+          </li>
+      {{else}}
+          <li class="nav-item">
+            <a class="nav-link" href="#">My trainings</a>
+          </li>
+      {{end}}
+
+        </ul>
+        <div class="d-flex">
+        {{if .ID}}
+            <a href="/log-out" class="btn btn-outline-danger">Log Out</a>
+        {{else}}
+            <a href="/auth/sign-in" class="btn btn-outline-primary mx-1">Sign In</a>
+            <a href="/auth/sign-up" class="btn btn-outline-primary">Sign Up</a>
+        {{end}}
+        </div>
+    </div>
+    </div>
+  </nav>
+
+    <form id="schedule-form">
+        <div id="schedule">
+            <h1>Set schedule for the week</h1>
+            <div class="mt-3 days"></div>
+            <input class="btn btn-primary mt-3 w-100" id="set-schedule" type="submit" value="Set schedule">
+        </div>
+        
+    </form>
+</body>
+
+<script>
+    const startTime = '02:00';
+    const endTime = '14:00';
+
+    const scheduleDiv = document.getElementById('schedule');
+    const daysDiv = document.querySelector('.days');
+    daysDiv.setAttribute("name", "dates");
+    const selections = {};
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+
+        const dateString = `${year}-${month}-${day}`;
+
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('day');
+        dayDiv.textContent = dateString;
+
+        const timeSelect = document.createElement('select');
+        timeSelect.multiple = true; // Add multiple attribute
+        timeSelect.addEventListener('change', () => {
+            selections[dateString] = Array.from(timeSelect.selectedOptions, option => option.value);
+        });
+
+        for (let time = startTime; time <= endTime; time = incrementTime(time)) {
+            const option = document.createElement('option');
+            option.value = time;
+            option.textContent = addSixHours(time);
+            timeSelect.appendChild(option);
+        }
+
+        dayDiv.appendChild(timeSelect);
+        daysDiv.appendChild(dayDiv);
+    }
+
+    function addSixHours(time) {
+        const [hours, minutes] = time.split(':').map(Number);
+        const date = new Date();
+        date.setHours(hours);
+        date.setMinutes(minutes);
+        date.setHours(date.getHours() + 6);
+        const newHours = date.getHours().toString().padStart(2, '0');
+        const newMinutes = date.getMinutes().toString().padStart(2, '0');
+        return `${newHours}:${newMinutes}`;
+    }
+
+    function incrementTime(time) {
+        const [hours, minutes] = time.split(':').map(Number);
+        const newHours = (hours + 1) % 24;
+        const newTime = `${newHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        return newTime;
+    }
+    //send schedule to back
+    const submit = document.getElementById('set-schedule');
+        submit.addEventListener('click', (event) => {
+            event.preventDefault();
+            const schedule = {}
+            schedule["dates"] = selections
+            console.log(schedule)
+            // Send JSON to backend using HTTP request
+            fetch("http://localhost:8888/trainer/set-schedule",{
+            method:"POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(schedule)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.code != 201) {
+                throw new Error(data.message)
+            }
+            alert(data.message)
+        })
+        .catch(error => alert(error));
+        });
+</script>
+</html>

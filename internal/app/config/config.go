@@ -1,23 +1,30 @@
 package config
 
-import "github.com/kamalshkeir/kenv"
+import (
+	"os"
 
-type GlobalConfig struct {
-	Port  string `kenv:"PORT|:8888"`
-	PsgDB struct {
-		Name string `kenv:"DB_NAME|db"` // NOT REQUIRED: if DB_NAME not found, defaulted to 'db'
-		Pwd  string `kenv:"DB_PWD"`     // REEQUIRED: this env var is required, you will have error if empty
-		User string `kenv:"DB_USR"`
-		Port string `kenv:"DB_PORT"` // NOT REQUIRED: if DB_DSN not found it's not required, it's ok to stay empty
-	}
+	"github.com/joho/godotenv"
+)
+
+type DBConfig struct {
+	Name string
+	Pwd  string
+	User string
+	Port string
+	Host string
 }
 
 // GetConfig parse .env file and fill GlobalConfig struct
-func GetConfig() (*GlobalConfig, error) {
-	kenv.Load(".env")
-	Config := &GlobalConfig{}
-	if err := kenv.Fill(Config); err != nil {
-		return Config, err
+func GetConfig() (*DBConfig, error) {
+	if err := godotenv.Load(); err != nil {
+		return &DBConfig{}, err
 	}
-	return Config, nil
+	config := &DBConfig{
+		Name: os.Getenv("DB_NAME"),
+		Pwd:  os.Getenv("DB_PWD"),
+		User: os.Getenv("DB_USER"),
+		Port: os.Getenv("DB_PORT"),
+		Host: os.Getenv("DB_HOST"),
+	}
+	return config, nil
 }

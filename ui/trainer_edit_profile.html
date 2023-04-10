@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <title>Document</title>
+    <style>
+        .container{
+           margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tab-pane" id="settings">
+            <form action="/trainer/edit-profile" method="post" enctype="multipart/form-data">
+                <h5 class="mb-3 text-uppercase bg-light p-2"><i class="mdi mdi-account-circle mr-1"></i> Personal Info</h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="firstname">First Name</label>
+                            <input type="text" class="form-control" name="firstname" placeholder="Enter first name">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="lastname">Last Name</label>
+                            <input type="text" class="form-control" name="lastname" placeholder="Enter last name">
+                        </div>
+                    </div> <!-- end col -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" class="form-control" name="phone" placeholder="Enter phone number">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="speciality">Speciality</label>
+                            <input type="text" class="form-control" name="speciality" placeholder="Enter your speciality">
+                        </div>
+                    </div> 
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="motivation">Motivational words</label>
+                            <input type="text" class="form-control" name="motivation" placeholder="Enter some Motivational words">
+                        </div>
+                    </div> 
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Avatar</label>
+                            <input class="form-control" type="file" name="ava">
+                        </div>
+                    </div> <!-- end row -->
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="userbio">Bio</label>
+                            <textarea class="form-control" name="bio" rows="4" placeholder="Write something about yourself..."></textarea>
+                        </div>
+                    </div> <!-- end col -->
+                </div> <!-- end row -->
+
+                <!-- <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="speciality">Speciality</label>
+                            <input type="password" class="form-control" name="speciality" placeholder="Enter your speciality">
+                        </div>
+                    </div> 
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Avatar</label>
+                            <input class="form-control" type="file" name="ava">
+                        </div>
+                    </div>
+                </div> end row -->
+
+                <h5 class="mb-3 text-uppercase bg-light p-2"><i class="mdi mdi-earth mr-1"></i> Social</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="social-fb">Facebook</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fab fa-facebook-square"></i></span>
+                                </div>
+                                <input type="text" class="form-control" name="fb" placeholder="Username">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="social-tw">Twitter</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                                </div>
+                                <input type="text" class="form-control" name="tw" placeholder="Username">
+                            </div>
+                        </div>
+                    </div> <!-- end col -->
+                </div> <!-- end row -->
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="social-insta">Instagram</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                </div>
+                                <input type="text" class="form-control" name="insta" placeholder="Username">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end col -->
+                </div> <!-- end row -->
+
+                <div class="text-right">
+                    <button type="submit" class="btn btn-success waves-effect waves-light mt-2"><i class="mdi mdi-content-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

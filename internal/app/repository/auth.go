@@ -1,77 +1,79 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
+	"html/template"
+	"time"
 
-	"github.com/kamalshkeir/klog"
-	"github.com/kamalshkeir/korm"
+	"github.com/jmoiron/sqlx"
 	"github.com/muratovdias/diplom/internal/models"
 )
 
-var (
-	err     error
-	trainer models.User
-	client  models.User
-)
-
 type AuthRepository interface {
-	CreateClient(*models.User) (int, error)
-	CreateTrainer(*models.User) (int, error)
-	Authentication(string, string) (models.User, error)
+	CreateUser(user *models.User, img string) error
+	Authentication(string) (models.User, error)
+	UpdateToken(email, token string, token_duration time.Time) error
+	GetUserByToken(string) (models.User, error)
 }
 
 type AuthRepo struct {
-	// db *gorm.DB
+	db *sqlx.DB
 }
 
-func NewAuthRepository() *AuthRepo {
-	return &AuthRepo{}
+func NewAuthRepository(db *sqlx.DB) *AuthRepo {
+	return &AuthRepo{
+		db: db,
+	}
 }
 
-func (s *AuthRepo) CreateClient(client *models.User) (int, error) {
-	err = korm.AutoMigrate[models.User]("client")
-	if klog.CheckError(err) {
-		fmt.Println("error create clinet table", err.Error())
-		return 0, err
+func (s *AuthRepo) CreateUser(user *models.User, img string) error {
+	row := s.db.QueryRow(`INSERT INTO users 
+	(full_name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id`,
+		user.FullName, user.Email, user.Password, user.Role)
+	var id int
+	if err := row.Scan(&id); err != nil {
+		fmt.Println(err.Error())
+		return err
 	}
-	id, err := korm.Model[models.User]("client").Insert(client)
-	if err != nil {
-		// fmt.Println(err.Error())
-		return 0, err
-	}
-	return id, nil
-}
-func (s *AuthRepo) CreateTrainer(trainer *models.User) (int, error) {
-	err = korm.AutoMigrate[models.User]("trainer")
-	if klog.CheckError(err) {
-		fmt.Println("error create trainer table", err.Error())
-		return 0, err
-	}
-	id, err := korm.Model[models.User]("trainer").Insert(trainer)
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
-func (s *AuthRepo) Authentication(role, email string) (models.User, error) {
-	switch role {
-	case "trainer":
-		trainer, err = korm.Model[models.User]("trainer").Where("email=?", email).Select("pwd").One()
+	if user.Role == "trainer" {
+		_, err := s.db.Exec(`INSERT INTO trainer (user_id, image) VALUES ($1, $2)`, id, template.URL(img))
 		if err != nil {
-			fmt.Println("trainer", err.Error())
-			return models.User{}, err
+			fmt.Println(err.Error())
+			return err
 		}
-		return trainer, nil
-	case "client":
-		client, err = korm.Model[models.User]("client").Select("pwd").Where("email = ?", email).One()
-		if err != nil {
-			fmt.Println("client", err.Error())
-			return client, err
-		}
-		return client, nil
-	default:
-		return models.User{}, errors.New("no such role")
+		// fmt.Println("trainer id ", id, template.URL(img))
 	}
+	fmt.Println("user created")
+	return nil
+}
+
+func (s *AuthRepo) Authentication(email string) (models.User, error) {
+	var user models.User
+	err := s.db.Get(&user, "SELECT role, password FROM users WHERE email=$1", email)
+	if err != nil {
+		fmt.Println("user", err.Error())
+		return user, fmt.Errorf("repo: Authentication: %w", err)
+	}
+	return user, nil
+}
+
+func (r *AuthRepo) UpdateToken(email, token string, token_duration time.Time) error {
+	query := `UPDATE users SET token=$1, token_duration=$2 WHERE email=$3`
+	_, err := r.db.Exec(query, token, token_duration, email)
+	if err != nil {
+		return fmt.Errorf("repo: UpdateToken: %w", err)
+	}
+	return nil
+}
+
+func (r *AuthRepo) GetUserByToken(token string) (models.User, error) {
+	var user models.User
+	query := "SELECT user_id, full_name, email, role, token_duration FROM users WHERE token=$1"
+	row := r.db.QueryRow(query, token)
+	err := row.Scan(&user.ID, &user.FullName, &user.Email, &user.Role, &user.TokenDuration)
+	if err != nil {
+		return models.User{}, fmt.Errorf("repo: get user by token %w", err)
+	}
+	// fmt.Println("by token: ", user)
+	return user, nil
 }

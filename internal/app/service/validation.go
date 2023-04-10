@@ -7,7 +7,7 @@ import (
 )
 
 func isValidEmail(email string) error {
-	_, err = mail.ParseAddress(email)
+	_, err := mail.ParseAddress(email)
 	if err != nil {
 		return ErrInvalidEmail
 	}

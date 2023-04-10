@@ -2,93 +2,76 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/muratovdias/diplom/internal/app/service"
 	"github.com/muratovdias/diplom/internal/models"
 )
 
 // type statusResponse struct {
-// 	Status  int    `json:"status"`
-// 	Message string `json:"message"`
+// 	Role string `json:"role"`
 // }
 
-var id int
-var err error
-
-func (h *Handler) SignInGet(ctx *fiber.Ctx) error {
-	return ctx.SendFile("ui/sign-in.html")
+func (h *Handler) SignInGet(w http.ResponseWriter, r *http.Request) {
+	if err := h.templExecute(w, "./ui/sign-in.html", nil); err != nil {
+		return
+	}
 }
 
-func (h *Handler) SignInPost(ctx *fiber.Ctx) error {
-	role := ctx.Params("role")
-	signIn := new(models.SignIn)
-
-	if role != "trainer" && role != "client" {
-		return ctx.Status(400).JSON(fiber.Map{
-			"status":  400,
-			"message": "no such role",
-		})
-	}
-	if err = ctx.BodyParser(signIn); err != nil {
-		fmt.Println("error", err)
-		return ctx.SendStatus(400)
-	}
-	err = h.service.Authentication(role, signIn.Email, signIn.Password)
+func (h *Handler) SignInPost(w http.ResponseWriter, r *http.Request) {
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	user, err := h.service.Authentication(email, password)
 	if err != nil {
 		switch err {
 		case service.ErrUnautorized:
-			return ctx.Status(401).SendString(err.Error())
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
 		default:
-			return ctx.Status(400).SendString(err.Error())
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 	}
-	return ctx.Status(200).JSON(fiber.Map{
-		"status":  200,
-		"message": "Success",
-	})
+	// Create new session cookie and set its value to the session token and expiration time
+	sessionCookie := http.Cookie{
+		Name:  "session_id",
+		Value: user.Token,
+		Path:  "/",
+	}
+
+	http.SetCookie(w, &sessionCookie)
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
-func (h *Handler) SignUpGet(ctx *fiber.Ctx) error {
-	// Render the HTML file
-	return ctx.SendFile("ui/sign-up.html")
+func (h *Handler) SignUpGet(w http.ResponseWriter, r *http.Request) {
+	if err := h.templExecute(w, "./ui/sign-up.html", nil); err != nil {
+		return
+	}
 }
 
-func (h *Handler) SignUpPost(ctx *fiber.Ctx) error {
-	role := ctx.Params("role")
+func (h *Handler) SignUpPost(w http.ResponseWriter, r *http.Request) {
 	user := new(models.User)
-	switch role {
-	case "trainer":
-		body := ctx.Body()
-		if err = json.Unmarshal(body, user); err != nil {
-			return ctx.Status(400).Send([]byte(err.Error()))
-		}
-		id, err = h.service.CreateTrainer(user)
-		if err != nil {
-			return ctx.Status(500).JSON(fiber.Map{
-				"status":  500,
-				"message": err.Error(),
-			})
-		}
-	case "client":
-		body := ctx.Body()
-		if err = json.Unmarshal(body, user); err != nil {
-			return ctx.Status(500).SendString(err.Error())
-		}
-		id, err = h.service.CreateClient(user)
-		if err != nil {
-			return ctx.Status(500).SendString(err.Error())
-		}
-	default:
-		return ctx.Status(400).SendString("No such role")
+	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	return ctx.Status(200).JSON(fiber.Map{
-		"status": 200,
-		"id":     id,
-	})
+	w.Header().Set("Content-Type", "application/json")
+	err := h.service.CreateUser(user)
+	if err != nil {
+		w.Write([]byte("status: fail"))
+		return
+	}
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 }
 
-func (h *Handler) Home(ctx *fiber.Ctx) error {
-	return ctx.SendFile("ui/home.html")
+func (h *Handler) LogOut(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:  "session_id",
+		Value: "",
+		Path:  "/",
+	})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!-- Coding by CodingLab || www.codinglabweb.com -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css">
+
+    <title>Home</title>
+    <!-- <link rel="stylesheet" href="css/home.css" /> -->
+    <style>
+       /* Import Google font - Poppins */
+         /* Import Google font - Poppins */
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: "Poppins", sans-serif;
+        }
+        body {
+          background: #e3f2fd;
+        }
+        .card_container {
+          min-height: 80vh; 
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          display: grid;
+          grid-template-columns: repeat(3, auto);
+          grid-gap: 30px;
+        }
+        .card_container .card {
+          display: flex;
+          flex: 0 0 100%;
+          flex-direction: column;
+          align-items: center;
+          padding: 30px;
+          border: solid #4070f4;
+          border-width: 5px;
+          border-radius: 12px;
+          background: #fff;
+          box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+        }
+        .card .image {
+          height: 150px;
+          width: 150px;
+          padding: 4px;
+          background: #4070f4;
+          border-radius: 50%;
+        }
+        .image img {
+          height: 100%;
+          width: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+          border: 5px solid #fff;
+        }
+        .card h2 {
+          margin-top: 25px;
+          color: #333;
+          font-size: 22px;
+          font-weight: 600;
+        }
+        .card p {
+          margin-top: 4px;
+          font-size: 18px;
+          font-weight: 400;
+          color: #333;
+          text-align: center;
+        }
+        
+        a{
+          text-align: center;
+          text-decoration: none;
+          color: #fff;
+        }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-blue" style="background-color: darkblue;">
+        <div class="container">
+          <a class="navbar-brand" href="/" style="color: #fff; font-size: 25px">Workout app</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+              {{if .User.ID}}
+              <li class="nav-item">
+                <a class="nav-link" href="/client/trainings" style="color: #fff">My trainings</a>
+              </li>
+              {{end}}
+            </ul>
+            <div class="d-flex">
+              {{if .User.ID}}
+                <a href="/log-out" class="btn btn-outline-danger">Log Out</a>
+              {{else}}
+                <a href="/auth/sign-in" class="btn btn-outline-primary mx-1">Sign In</a>
+                <a href="/auth/sign-up" class="btn btn-outline-primary">Sign Up</a>
+              {{end}}
+            </div>
+          </div>
+        </div>
+      </nav>
+    <!-- end -->
+    <div class="quotes">
+      <!-- <p style="text-align: center; font-style: italic;">"It does not matter how slowly you go as long as you do not stop." - Confucius</p> -->
+      {{range .Trainers}}
+        <div class="card_container">
+          <div class="card">
+              <a href="/trainer/profile/{{.ID}}">
+                <div class="image">
+                  <img src="{{.Img}}" alt="">
+                </div>
+                <h2>{{.FullName}}</h2>
+                <p>{{.Speciality}}</p>
+              </a>
+          </div>
+        </divs>
+      {{end}}
+    </div>
+    <!-- Trainers card -->
+    <!-- end -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
+  </body>
+  </html>

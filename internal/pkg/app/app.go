@@ -3,8 +3,9 @@ package app
 import (
 	"fmt"
 	"log"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/go-chi/chi/v5"
 	"github.com/muratovdias/diplom/internal/app/config"
 	"github.com/muratovdias/diplom/internal/app/controller"
 	"github.com/muratovdias/diplom/internal/app/repository"
@@ -17,8 +18,8 @@ type App struct {
 	repository *repository.Repository
 	service    *service.Service
 	handler    *controller.Handler
-	fiber      *fiber.App
-	config     *config.GlobalConfig
+	router     *chi.Mux
+	config     *config.DBConfig
 }
 
 func NewApp() *App {
@@ -28,10 +29,15 @@ func NewApp() *App {
 		fmt.Printf("%s\n", err)
 		log.Fatal(err)
 	}
-	if err = repository.IniitDB(app.config); err != nil {
+	db, err := repository.IniitDB(app.config)
+	if err != nil {
 		log.Fatal(err)
 	}
-	app.repository = repository.NewRepository()
+	// if err = repository.CreateTables(db); err != nil {
+	// 	log.Fatal(err)
+	// }
+	tx := db.MustBegin()
+	app.repository = repository.NewRepository(db, tx)
 	app.service = service.NewService(app.repository)
 	app.handler = controller.NewHandler(app.service)
 
@@ -39,8 +45,8 @@ func NewApp() *App {
 }
 
 func (app *App) Run() error {
-	app.fiber = controller.InitRoutes(*app.handler) //Initialize routes
-	err := app.fiber.Listen(app.config.Port)
+	app.router = controller.InitRoutes(app.handler) //Initialize routes
+	err := http.ListenAndServe(":8888", app.router)
 	if err != nil {
 		return err
 	}

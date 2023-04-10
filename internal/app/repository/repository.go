@@ -1,11 +1,17 @@
 package repository
 
+import "github.com/jmoiron/sqlx"
+
 type Repository struct {
 	AuthRepository
+	Trainer
+	Client
 }
 
-func NewRepository() *Repository {
+func NewRepository(db *sqlx.DB, tx *sqlx.Tx) *Repository {
 	return &Repository{
-		AuthRepository: NewAuthRepository(),
+		AuthRepository: NewAuthRepository(db),
+		Trainer:        NewTrainerRepo(db),
+		Client:         NewClientRepo(db),
 	}
 }
