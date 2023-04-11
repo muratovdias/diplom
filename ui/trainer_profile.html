@@ -119,7 +119,7 @@
                           <p class="text-secondary mb-1">{{.TrainerInfo.Speciality}}</p>
                           {{if eq .User.Role "trainer"}}
                           <a href="/trainer/schedule/{{.User.ID}}" class="btn btn-primary">My Schedule</a>
-                          <button class="btn btn-outline-primary">Set Schedule</button>
+                          <a href="/trainer/set-schedule" class="btn btn-outline-primary">Set Schedule</a>
                           {{else}}
                           <a href="/trainer/schedule/{{.TrainerInfo.ID}}" class="btn btn-primary">View Schedule</a>
                           {{end}}
@@ -176,9 +176,9 @@
                           {{.TrainerInfo.Phone}}
                         </div>
                       </div>
-                      <hr>
                       {{if eq .TrainerInfo.Adress "NO"}}
                       {{else}}
+                      <hr>
                       <div class="row">
                         <div class="col-sm-3">
                           <h6 class="mb-0">Address</h6>
@@ -192,7 +192,7 @@
                       {{if eq .User.Role "trainer"}}
                       <div class="row">
                         <div class="col-sm-12">
-                          <a class="btn btn-info " target="__blank" href="/trainer/edit-profile">Edit</a>
+                          <a class="btn btn-primary" href="/trainer/edit-profile">Edit</a>
                         </div>
                       </div>
                       {{end}}

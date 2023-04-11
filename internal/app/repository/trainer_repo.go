@@ -14,6 +14,7 @@ type Trainer interface {
 	GetFullTrainerInfo(id int) (models.TrainerInfo, error)
 	ViewAllTrainings(id int) ([]models.Training, error)
 	UpdateTrainerInfo(trainer models.TrainerInfo) error
+	CancelSchedule(id int, times []string) error
 }
 
 type TrainerRepo struct {
@@ -134,5 +135,18 @@ func (t *TrainerRepo) UpdateTrainerInfo(trainer models.TrainerInfo) error {
 		}
 	}
 	fmt.Println("updated")
+	return nil
+}
+
+func (t *TrainerRepo) CancelSchedule(id int, times []string) error {
+	query := `DELETE FROM trainer_schedule
+			WHERE user_id=$1 AND date=$2`
+	for _, time := range times {
+		_, err := t.db.Exec(query, id, time)
+		if err != nil {
+			fmt.Printf("trainer repo: CancleSchedule: %s", err.Error())
+			return err
+		}
+	}
 	return nil
 }

@@ -111,8 +111,8 @@
             </div>
         </nav>
         <!-- end -->
-
-        <form id="schedule-form" action="/trainer/schedule/{{.TrainerID}}" method="post">
+        {{if eq .User.Role "client"}}
+        <form id="schedule-form" action="/client/set-schedule/{{.TrainerID}}" method="post">
           <div id="schedule">
             <h1>Schedule for the week</h1>
             <p style="font-style: italic;">"Talent without discipline is like an octopus on roller skates. There's plenty of movement, but you never know if it's going to be forward, backwards, or sideways." - H. Jackson Brown Jr.</p>
@@ -131,7 +131,6 @@
                 </select>
               </div>
             {{end}}
-            {{if eq .User.Role "client"}}
             <div class="col-12">
                 <div class="form-group">
                     <label for="note" style="font-size: 20px;">Note</label>
@@ -139,9 +138,39 @@
                 </div>
             </div>
             <input class="btn btn-primary w-100" id="sign-up" type="submit" value="Set schedule">
-            {{end}}
             </div>
           </div>
         </form>
+        {{else}}
+        <form id="schedule-form" action="/trainer/cancel-schedule" method="post">
+            <div id="schedule">
+              <h1>Schedule for the week</h1>
+              <p style="font-style: italic;">"Talent without discipline is like an octopus on roller skates. There's plenty of movement, but you never know if it's going to be forward, backwards, or sideways." - H. Jackson Brown Jr.</p>
+              <div class="mt-3 days days d-inline-flex flex-wrap justify-content-center align-items-centerr">
+              {{range $date, $times := .Schedule}}
+                <div class="day">
+                  {{$date}}
+                  <select name="{{$date}}" multiple>
+                  {{range $times}}
+                      {{if eq .Flag true}}
+                      <option value="{{.Time}}" disabled style="color: rgb(221, 31, 31);">{{.Time}}</option>
+                      {{else}}
+                      <option value="{{.Time}}">{{.Time}}</option>
+                      {{end}}
+                  {{end}}
+                  </select>
+                </div>
+              {{end}}
+              <div class="col-12">
+                  <div class="form-group">
+                      <label for="note" style="font-size: 20px;">Note</label>
+                      <textarea class="form-control" name="note" id="note" rows="2" placeholder="Provide a phone number..."></textarea>
+                  </div>
+              </div>
+              <input class="btn btn-primary w-100" type="submit" value="Cancel">
+              </div>
+            </div>
+          </form>
+        {{end}}
 </body>
 </html>

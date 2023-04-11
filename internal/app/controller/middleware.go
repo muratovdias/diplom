@@ -21,7 +21,7 @@ func (h *Handler) SessionMiddleware(next http.Handler) http.Handler {
 		} else {
 			user, err := h.service.AuthService.GetUserByToken(sessionID.Value)
 			if err != nil {
-				fmt.Println(err)
+				next.ServeHTTP(w, r)
 				return
 			}
 

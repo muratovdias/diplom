@@ -35,7 +35,9 @@ func (c *ClientRepo) ViewSchedule(id int) (map[string][]models.Time, error) {
 	schedule := make(map[string][]models.Time)
 	query := `SELECT date, available 
 			FROM trainer_schedule 
-			WHERE user_id=$1 AND date::date >= CURRENT_DATE::date`
+			WHERE user_id=$1 AND date::date >= CURRENT_DATE::date
+			ORDER BY date`
+
 	rows, err := c.db.Query(query, id)
 	if err != nil {
 		fmt.Println("view schedule ", err.Error())
@@ -64,6 +66,7 @@ func (c *ClientRepo) GetAllTrainers() ([]models.Trainers, error) {
 	query := `SELECT user_id, full_name, speciality, image
 			FROM users INNER JOIN trainer
 			USING (user_id)`
+
 	rows, err := c.db.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("repo: GetAllTrainers: %w", err)
@@ -92,6 +95,7 @@ func (c *ClientRepo) SetTrainings(id, trainerID int, note string, dates []string
 	}()
 	query := `INSERT INTO client_schedule(user_id, trainer_id, note, date) 
 			VALUES($1, $2, $3, $4)`
+
 	for _, time := range dates {
 		_, err := tx.Exec("SET TIME ZONE 'Asia/Almaty'")
 		if err != nil {
@@ -124,6 +128,7 @@ func (c *ClientRepo) ViewTrainings(id int) ([]models.Training, error) {
 			FROM client_schedule c INNER JOIN users u
 			ON c.trainer_id = u.user_id
 			WHERE c.user_id=$1`
+
 	rows, err := c.db.Query(query, id)
 	if err != nil {
 		fmt.Println("repo: client: ViewTrainings: ", err.Error())
@@ -161,6 +166,7 @@ func (c *ClientRepo) CancelTraining(id int, date string) error {
 	query1 := `SELECT trainer_id 
 				FROM client_schedule
 				WHERE user_id=$1 AND date=$2`
+
 	row := tx.QueryRow(query1, id, date)
 	if err := row.Scan(&trainer_id); err != nil {
 		log.Printf("repo: client: CancelTraining: %v", err.Error())
@@ -168,6 +174,7 @@ func (c *ClientRepo) CancelTraining(id int, date string) error {
 	}
 	query2 := `DELETE FROM client_schedule
 				WHERE user_id=$1 AND date=$2`
+
 	_, err = tx.Exec(query2, id, date)
 	if err != nil {
 		log.Printf("repo: client: CancelTraining: %v", err.Error())
@@ -176,6 +183,7 @@ func (c *ClientRepo) CancelTraining(id int, date string) error {
 	query3 := `UPDATE trainer_schedule 
 				SET available=true
 				WHERE user_id=$1 AND date=$2`
+
 	_, err = tx.Exec(query3, trainer_id, date)
 	if err != nil {
 		log.Printf("repo: client: CancelTraining: %v", err.Error())

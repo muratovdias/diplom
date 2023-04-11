@@ -2,9 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muratovdias/diplom/internal/app/service"
@@ -145,4 +147,29 @@ func (h *Handler) PostEditProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *Handler) CancelSchedule(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(ctxUserKey).(models.User)
+	if user.Role != "trainer" {
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
+		return
+	}
+	var times []string
+	r.ParseForm()
+	for i := 0; i < 7; i++ {
+		date := time.Now().Add(time.Hour * time.Duration(24*i)).Format("2006-01-02")
+		time, ok := r.Form[date]
+		if ok {
+			for _, t := range time {
+				d := fmt.Sprintf("%s %s", date, t)
+				times = append(times, d)
+			}
+		}
+	}
+	if err := h.service.Trainer.CancelSchedule(user.ID, times); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/trainer/schedule/"+strconv.Itoa(user.ID), http.StatusSeeOther)
 }

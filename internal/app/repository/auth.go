@@ -43,7 +43,6 @@ func (s *AuthRepo) CreateUser(user *models.User, img string) error {
 			fmt.Println(err.Error())
 			return err
 		}
-		// fmt.Println("trainer id ", id, template.URL(img))
 	}
 	fmt.Println("user created")
 	return nil
@@ -82,6 +81,5 @@ func (r *AuthRepo) GetUserByToken(token string) (models.User, error) {
 	if err != nil {
 		return models.User{}, fmt.Errorf("repo: get user by token %w", err)
 	}
-	// fmt.Println("by token: ", user)
 	return user, nil
 }
