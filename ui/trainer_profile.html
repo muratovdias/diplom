@@ -186,13 +186,13 @@
                         </div>
                       </div>
                       <hr>
-                      {{if eq .User.Role "trainer"}}
+
                       <div class="row">
                         <div class="col-sm-12">
                           <a class="btn btn-primary" href="/trainer/edit-profile">Edit</a>
                         </div>
                       </div>
-                      {{end}}
+
                     </div>
                   </div>
                   <!--  -->
@@ -236,11 +236,18 @@
           {{if .Comments}} {{range .Comments}}
             <div class="card mt-4">
               <div class="card-body pb-1">
-                <p
-                  class="small mb-1"
-                  style="font-size: 17px; font-weight: bold; color: #0f044c">
-                  {{.Author}}
-                </p>
+                <div class="d-flex justify-content-between">
+                  <p
+                    class="small mb-1"
+                    style="font-size: 17px; font-weight: bold; color: #0f044c">
+                    {{.Author}}
+                  </p>
+                  {{if eq .Edit true}}
+                  <form action="/delete-comment/?trainerID={{.TrainerID}}" method="post">
+                    <button type="submit" class="btn btn-outline-danger btn-sm " style="font-size: 12px;">delete</a>
+                  </form>
+                  {{end}}
+                </div>
                 <p>{{.Text}}</p>
 
                 <div class="d-flex justify-content-between mb-0">

@@ -70,11 +70,12 @@ func (h *Handler) TrainerProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	comments, err := h.service.Commet.GetCommentsByTrainerID(id)
+	comments, err := h.service.Commet.GetCommentsByTrainerID(user.ID, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// fmt.Println(comments[0].Edit)
 	trainerProfile := models.TrainerProfile{
 		User:        user,
 		TrainerInfo: trainer,
@@ -114,6 +115,11 @@ func (h *Handler) TrainerProfileSchedule(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *Handler) GetEditProfile(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(ctxUserKey).(models.User)
+	if user.Role != "trainer" {
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
+		return
+	}
 	if err := h.templExecute(w, "./ui/trainer_edit_profile.html", nil); err != nil {
 		return
 	}
@@ -136,11 +142,7 @@ func (h *Handler) PostEditProfile(w http.ResponseWriter, r *http.Request) {
 	trainer.Speciality = r.FormValue("speciality")
 	trainer.Bio = r.FormValue("bio")
 	_, handler, _ := r.FormFile("ava")
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusBadRequest)
-	// 	return
-	// }
-	// defer file.Close()
+
 	img, err := service.CreateImage(handler)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -154,6 +156,7 @@ func (h *Handler) PostEditProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	http.Redirect(w, r, "/trainer/profile/"+strconv.Itoa(user.ID), http.StatusSeeOther)
 }
 
 func (h *Handler) CancelSchedule(w http.ResponseWriter, r *http.Request) {

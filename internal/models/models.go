@@ -88,6 +88,7 @@ type EditProfile struct {
 type Comment struct {
 	TrainerID int
 	AuthorID  int
+	Edit      bool
 	Author    string
 	Date      string
 	Text      string

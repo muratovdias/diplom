@@ -38,3 +38,22 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/trainer/profile/"+trainerID, http.StatusSeeOther)
 }
+
+func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(ctxUserKey).(models.User)
+	if user.Role == "" {
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
+		return
+	}
+	trainerID := r.URL.Query().Get("trainerID")
+	id, err := strconv.Atoi(trainerID)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+	if err := h.service.Commet.Delete(user.ID, id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/trainer/profile/"+trainerID, http.StatusSeeOther)
+}
