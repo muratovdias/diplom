@@ -27,21 +27,16 @@ func NewTrainerService(repo repository.Trainer) *TrainerService {
 }
 
 func (t *TrainerService) SetSchedule(id int, schedule map[string][]string) error {
-
 	return t.repo.SetSchedule(id, schedule)
 }
 
-// func (t *TrainerService) GetAllTrainers() ([]models.Trainers, error) {
-// 	trainers, err := t.repo.GetAllTrainers()
-// 	if err != nil {
-// 		fmt.Println(err.Error())
-// 		return nil, err
-// 	}
-// 	// for _, trainer := range trainers {
-// 	// 	trainer.Img = template.URL(base64.StdEncoding.EncodeToString([]byte(trainer.Img)))
-// 	// }
-// 	return trainers, nil
-// }
+func (t *TrainerService) ViewAllTrainings(id int) ([]models.Training, error) {
+	return t.repo.ViewAllTrainings(id)
+}
+
+func (t *TrainerService) CancelSchedule(id int, times []string) error {
+	return t.repo.CancelSchedule(id, times)
+}
 
 func (t *TrainerService) GetFullTrainerInfo(id int) (models.TrainerInfo, error) {
 	trainer, err := t.repo.GetFullTrainerInfo(id)
@@ -52,16 +47,15 @@ func (t *TrainerService) GetFullTrainerInfo(id int) (models.TrainerInfo, error) 
 	return trainer, nil
 }
 
-func (t *TrainerService) ViewAllTrainings(id int) ([]models.Training, error) {
-	return t.repo.ViewAllTrainings(id)
-}
-
 func (t *TrainerService) UpdateTrainerInfo(trainer models.TrainerInfo) error {
 	if trainer.Bio == "" {
 		trainer.Bio = "NO"
 	}
 	if trainer.Phone == "" {
 		trainer.Phone = "NO"
+	}
+	if trainer.Adress == "" {
+		trainer.Adress = "NO"
 	}
 	if trainer.Speciality == "" {
 		trainer.Speciality = "trainer"
@@ -76,8 +70,4 @@ func (t *TrainerService) UpdateTrainerInfo(trainer models.TrainerInfo) error {
 		trainer.Instagram = "NO"
 	}
 	return t.repo.UpdateTrainerInfo(trainer)
-}
-
-func (t *TrainerService) CancelSchedule(id int, times []string) error {
-	return t.repo.CancelSchedule(id, times)
 }

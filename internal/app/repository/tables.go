@@ -67,5 +67,13 @@ const (
 		facebook CHAR(30) NOT NULL DEFAULT 'NO',
 		FOREIGN KEY (user_id) REFERENCES users (user_id)
 	);
+
+	CREATE TABLE IF NOT EXISTS comments (
+		author_id INT,
+		trainer_id INT,
+		text VARCHAR,
+		date VARCHAR,
+		FOREIGN KEY (author_id) REFERENCES users (user_id)
+	);
 	`
 )

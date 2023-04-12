@@ -17,6 +17,7 @@ type Service struct {
 	AuthService
 	Trainer
 	Client
+	Commet
 }
 
 func NewService(repo *repository.Repository) *Service {
@@ -24,6 +25,7 @@ func NewService(repo *repository.Repository) *Service {
 		AuthService: NewAuthService(repo.AuthRepository),
 		Trainer:     NewTrainerService(repo.Trainer),
 		Client:      NewClientService(repo.Client),
+		Commet:      NewCommentService(repo.Comment),
 	}
 }
 

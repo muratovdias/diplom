@@ -6,12 +6,14 @@ type Repository struct {
 	AuthRepository
 	Trainer
 	Client
+	Comment
 }
 
-func NewRepository(db *sqlx.DB, tx *sqlx.Tx) *Repository {
+func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		AuthRepository: NewAuthRepository(db),
 		Trainer:        NewTrainerRepo(db),
 		Client:         NewClientRepo(db),
+		Comment:        NewCommentRepo(db),
 	}
 }

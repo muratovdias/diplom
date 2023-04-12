@@ -89,7 +89,7 @@
               </li>
               {{else}}
               <li class="nav-item">
-                <a class="nav-link" href="#" style="color: #fff">My trainings</a>
+                <a class="nav-link" href="/client/trainings" style="color: #fff">My trainings</a>
               </li>
               {{end}}
             </ul>
@@ -176,8 +176,6 @@
                           {{.TrainerInfo.Phone}}
                         </div>
                       </div>
-                      {{if eq .TrainerInfo.Adress "NO"}}
-                      {{else}}
                       <hr>
                       <div class="row">
                         <div class="col-sm-3">
@@ -187,7 +185,6 @@
                           {{.TrainerInfo.Adress}}
                         </div>
                       </div>
-                      {{end}}
                       <hr>
                       {{if eq .User.Role "trainer"}}
                       <div class="row">
@@ -212,5 +209,59 @@
             </div>
         </div>
     <!-- end -->
+   <!-- Comment -->
+
+   <div class="row d-flex justify-content-center mt-3 mb-5" >
+
+      <div class="col-md-8 col-lg-6">
+        <div class="card shadow-0 border" style="background-color: #f0f2f5">
+          <div class="card-body p-4" id="comment_container">
+            <!-- Comment Input -->
+            <form action="/create-commet/?trainerID={{.TrainerInfo.ID}}" method="post">
+              <div class="form-outline d-flex mb-0">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="comment"
+                  placeholder="Type comment..."
+                  required/>
+                <input
+                  type="submit"
+                  class="btn btn-primary mx-1"
+                  value="Comment"/>
+              </div>
+            </form>
+            <!-- Comment Input End -->
+            <!-- Comment Card -->
+          {{if .Comments}} {{range .Comments}}
+            <div class="card mt-4">
+              <div class="card-body pb-1">
+                <p
+                  class="small mb-1"
+                  style="font-size: 17px; font-weight: bold; color: #0f044c">
+                  {{.Author}}
+                </p>
+                <p>{{.Text}}</p>
+
+                <div class="d-flex justify-content-between mb-0">
+                  <!-- Date Div -->
+                  <div>
+                    <p
+                      class="small mb-0"
+                      style="font-size: 12px; color: rgb(20, 133, 199)">
+                      {{.Date}}
+                    </p>
+                  </div>
+                </div>
+                <!-- </div> -->
+              </div>
+            </div>
+          {{end}}
+          {{end}}
+            <!-- Comment Card End -->
+          </div>
+      </div>
+    </div>
+   </div>
 </body>
 </html>

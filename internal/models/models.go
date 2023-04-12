@@ -44,6 +44,7 @@ type Trainers struct {
 type TrainerProfile struct {
 	User        User
 	TrainerInfo TrainerInfo
+	Comments    []Comment
 }
 
 type TrainerSchedule struct {
@@ -53,8 +54,8 @@ type TrainerSchedule struct {
 }
 
 type Time struct {
-	Time string
 	Flag bool
+	Time string
 }
 
 type MainPage struct {
@@ -82,6 +83,14 @@ type EditProfile struct {
 	Twitter    string
 	Instagram  string
 	Ava        template.URL
+}
+
+type Comment struct {
+	TrainerID int
+	AuthorID  int
+	Author    string
+	Date      string
+	Text      string
 }
 
 type Response struct {

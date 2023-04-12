@@ -36,8 +36,7 @@ func NewApp() *App {
 	// if err = repository.CreateTables(db); err != nil {
 	// 	log.Fatal(err)
 	// }
-	tx := db.MustBegin()
-	app.repository = repository.NewRepository(db, tx)
+	app.repository = repository.NewRepository(db)
 	app.service = service.NewService(app.repository)
 	app.handler = controller.NewHandler(app.service)
 

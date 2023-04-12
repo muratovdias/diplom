@@ -70,9 +70,15 @@ func (h *Handler) TrainerProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	comments, err := h.service.Commet.GetCommentsByTrainerID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	trainerProfile := models.TrainerProfile{
 		User:        user,
 		TrainerInfo: trainer,
+		Comments:    comments,
 	}
 	if err := h.templExecute(w, "./ui/trainer_profile.html", trainerProfile); err != nil {
 		return
@@ -126,6 +132,7 @@ func (h *Handler) PostEditProfile(w http.ResponseWriter, r *http.Request) {
 	lastName := r.FormValue("lastname")
 	trainer.FullName = firstName + " " + lastName
 	trainer.Phone = r.FormValue("phone")
+	trainer.Adress = r.FormValue("adress")
 	trainer.Speciality = r.FormValue("speciality")
 	trainer.Bio = r.FormValue("bio")
 	_, handler, _ := r.FormFile("ava")
