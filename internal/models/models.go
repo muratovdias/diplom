@@ -98,3 +98,9 @@ type Response struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
+
+type Stats struct {
+	All       int
+	Canceled  int
+	Completed int
+}

@@ -15,6 +15,7 @@ type Client interface {
 	SetTrainings(id, trainerID int, note string, dates []string) error
 	ViewTrainings(id int) ([]models.Training, error)
 	CancelTraining(id int, date string) error
+	MyStats(id int) (models.Stats, error)
 }
 
 type ClientRepo struct {
@@ -108,7 +109,7 @@ func (c *ClientRepo) SetTrainings(id, trainerID int, note string, dates []string
 			return err
 		}
 		_, err = tx.Exec(`UPDATE trainer_schedule 
-		SET available=false WHERE date=$1`, time)
+		SET available=false WHERE user_id = $1 AND date=$2`, trainerID, time)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -172,7 +173,8 @@ func (c *ClientRepo) CancelTraining(id int, date string) error {
 		log.Printf("repo: client: CancelTraining: %v", err.Error())
 		return err
 	}
-	query2 := `DELETE FROM client_schedule
+	query2 := `UPDATE client_schedule
+				SET canceled = true
 				WHERE user_id=$1 AND date=$2`
 
 	_, err = tx.Exec(query2, id, date)
@@ -195,4 +197,27 @@ func (c *ClientRepo) CancelTraining(id int, date string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *ClientRepo) MyStats(id int) (models.Stats, error) {
+	var stats models.Stats
+	query1 := `SELECT COUNT(*) FROM client_schedule WHERE user_id = $1`
+	query2 := `SELECT COUNT(canceled) FROM client_schedule WHERE user_id = $1 AND cancled = true`
+	query3 := `SELECT COUNT(completed) FROM client_schedule WHERE user_id = $1 AND completed = true`
+
+	row := c.db.QueryRow(query1, id)
+	if err := row.Scan(&stats.All); err != nil {
+		return stats, fmt.Errorf("repo: MyStats: %w", err)
+	}
+
+	row = c.db.QueryRow(query2, id)
+	if err := row.Scan(&stats.Canceled); err != nil {
+		return stats, fmt.Errorf("repo: MyStats: %w", err)
+	}
+
+	row = c.db.QueryRow(query3, id)
+	if err := row.Scan(&stats.Completed); err != nil {
+		return stats, fmt.Errorf("repo: MyStats: %w", err)
+	}
+	return stats, nil
 }

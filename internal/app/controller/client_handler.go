@@ -68,3 +68,13 @@ func (h *Handler) CanlcelTraining(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/client/trainings", http.StatusSeeOther)
 }
+
+func (h *Handler) MyStats(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(ctxUserKey).(models.User)
+	stats, err := h.service.Client.MyStats(user.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(stats)
+}

@@ -13,6 +13,7 @@ type Client interface {
 	SetTrainings(id, trainerID int, note string, dates []string) error
 	ViewTrainings(id int) ([]models.Training, error)
 	CancelTraining(id int, date string) error
+	MyStats(id int) (models.Stats, error)
 }
 
 type ClientService struct {
@@ -56,4 +57,8 @@ func (c *ClientService) ViewTrainings(id int) ([]models.Training, error) {
 
 func (c *ClientService) CancelTraining(id int, date string) error {
 	return c.repo.CancelTraining(id, date)
+}
+
+func (c *ClientService) MyStats(id int) (models.Stats, error) {
+	return c.repo.MyStats(id)
 }

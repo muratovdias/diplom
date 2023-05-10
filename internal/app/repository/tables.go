@@ -50,6 +50,8 @@ const (
 		trainer_id INT NOT NULL,
 		date TIMESTAMPTZ NOT NULL,
 		note VARCHAR,
+		canceled BOOLEAN NOT NULL DEFAULT false,
+		completed BOOLEAN NOT NULL DEFAULT false,
 		FOREIGN KEY (user_id) REFERENCES users (user_id),
 		FOREIGN KEY (trainer_id) REFERENCES users (user_id)
 	);
