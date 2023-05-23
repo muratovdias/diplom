@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css">
+
+    <title>My Stats</title>
+
+    <style>
+      .table-container{
+          display: flex;
+          justify-content: center;
+          margin-top: 2%;
+          margin-left: 10%;
+          width: 80%;
+      }
+      .table-1{
+          color: azure;
+          font-size: 20px;
+      }
+  </style>
+
+</head>
+<body>
+     <!-- Navbar -->
+     <nav class="navbar navbar-expand-lg navbar-light bg-blue" style="background-color: darkblue;">
+        <div class="container">
+          <a class="navbar-brand" href="/" style="color: #fff; font-size: 25px">Workout app</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+              {{if .User.ID}}
+              <li class="nav-item">
+                <a class="nav-link" href="/client/trainings" style="color: #fff">My trainings</a>
+              </li> 
+              <li class="nav-item">
+                <a class="nav-link" href="/client/my-stats" style="color: #fff">My stats</a>
+              </li>
+              {{end}}
+            </ul>
+            <div class="d-flex">
+              {{if .User.ID}}
+                <a href="/log-out" class="btn btn-outline-danger">Log Out</a>
+              {{else}}
+                <a href="/auth/sign-in" class="btn btn-outline-primary mx-1">Sign In</a>
+                <a href="/auth/sign-up" class="btn btn-outline-primary">Sign Up</a>
+              {{end}}
+            </div>
+          </div>
+        </div>
+      </nav>
+    <!-- end -->
+
+    <!-- <div class="">
+      <div class="row">
+        <div class="col">
+          <p>Number of trainings</p>
+          <p>190</p>
+        </div>
+        <div class="col">
+          <p>Completed</p>
+          <p>170</p>
+        </div>
+        <div class="col">
+          <p>Canceled</p>
+          <p>15</p>
+        </div>
+        <div class="col">
+          <p>Missed</p>
+          <p>5</p>
+        </div>
+      </div>      
+    </div> -->
+  {{if .Trainings}}
+    <div class="d-flex mt-5 justify-content-center">
+      <div class="row">
+        <div class="col text-center">
+          <h2>Trainings</h2>
+          <h4 style="color: rgb(0, 195, 0);">{{.All}}</h4>
+        </div>
+        <div class="col text-center">
+          <h2>Completed</h2>
+          <h4 style="color: blue">{{.Completed}}</h4>
+        </div>
+        <div class="col text-center">
+          <h2>Canceled</h2>
+          <h4 style="color: rgb(219, 219, 0)">{{.Canceled}}</h4>
+        </div>
+        <div class="col text-center">
+          <h2>Missed</h2>
+          <h4 style="color: red">{{.Missed}}</h4>
+        </div>
+      </div>
+    </div>
+  {{end}}
+    
+    <div class="table-container">
+      {{if .Trainings}}
+        <table class="table">
+            <thead>
+              <tr class="table-dark">
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Note</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .Trainings}}
+              <tr>
+                <th scope="row">{{.Row}}</th>
+                <td>{{.Name}}</td>
+                <td>{{.Note}}</td>
+                <td>{{.Date}}</td>
+                <td> {{.Status}} </td>
+              </tr>
+              {{end}}
+            </tbody>
+        </table>
+        {{else}}
+          <h2>No Trainings</h2>
+        {{end}}
+      </div>
+</body>
+</html>

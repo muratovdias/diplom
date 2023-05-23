@@ -183,3 +183,18 @@ func (h *Handler) CancelSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/trainer/schedule/"+strconv.Itoa(user.ID), http.StatusSeeOther)
 }
+
+func (h *Handler) StartTraining(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(ctxUserKey).(models.User)
+	date := r.URL.Query().Get("date")
+	fmt.Println(date)
+	if user.Role != "trainer" {
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
+		return
+	}
+	if err := h.service.Trainer.StartTraining(user.ID, date); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}

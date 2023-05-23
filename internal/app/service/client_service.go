@@ -1,7 +1,10 @@
 package service
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 
 	"github.com/muratovdias/diplom/internal/app/repository"
 	"github.com/muratovdias/diplom/internal/models"
@@ -14,6 +17,8 @@ type Client interface {
 	ViewTrainings(id int) ([]models.Training, error)
 	CancelTraining(id int, date string) error
 	MyStats(id int) (models.Stats, error)
+	LikeTrainer(clientId, trainerId int) error
+	DislikeTrainer(clientId, trainerId int) error
 }
 
 type ClientService struct {
@@ -61,4 +66,57 @@ func (c *ClientService) CancelTraining(id int, date string) error {
 
 func (c *ClientService) MyStats(id int) (models.Stats, error) {
 	return c.repo.MyStats(id)
+}
+
+func (c *ClientService) LikeTrainer(clientId, trainerId int) error {
+	if err := c.repo.CheckLike(clientId, trainerId); err == nil {
+		if err = c.repo.DeleteLike(clientId, trainerId); err != nil {
+			log.Printf("service: %s", err)
+			return err
+		}
+	} else if errors.Is(err, sql.ErrNoRows) {
+		if err = c.repo.CheckDislike(clientId, trainerId); err == nil {
+			if err = c.repo.DeleteDislike(clientId, trainerId); err != nil {
+				log.Printf("service: %s", err)
+				return err
+			}
+			if err = c.repo.SetLike(clientId, trainerId); err != nil {
+				log.Printf("service: %s", err)
+				return err
+			}
+		} else if errors.Is(err, sql.ErrNoRows) {
+			if err = c.repo.SetLike(clientId, trainerId); err != nil {
+				log.Printf("service: %s", err)
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (c *ClientService) DislikeTrainer(clientId, trainerId int) error {
+	if err := c.repo.CheckDislike(clientId, trainerId); err == nil {
+		log.Printf("service: %s\n", err)
+		if err = c.repo.DeleteDislike(clientId, trainerId); err != nil {
+			log.Printf("service: %s\n", err)
+			return err
+		}
+	} else if errors.Is(err, sql.ErrNoRows) {
+		if err = c.repo.CheckLike(clientId, trainerId); err == nil {
+			if err = c.repo.DeleteLike(clientId, trainerId); err != nil {
+				log.Printf("service: %s\n", err)
+				return err
+			}
+			if err = c.repo.SetDislike(clientId, trainerId); err != nil {
+				log.Printf("service: %s\n", err)
+				return err
+			}
+		} else if errors.Is(err, sql.ErrNoRows) {
+			if err = c.repo.SetDislike(clientId, trainerId); err != nil {
+				log.Printf("service: %s\n", err)
+				return err
+			}
+		}
+	}
+	return nil
 }

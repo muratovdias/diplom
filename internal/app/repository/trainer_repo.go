@@ -15,6 +15,7 @@ type Trainer interface {
 	ViewAllTrainings(id int) ([]models.Training, error)
 	UpdateTrainerInfo(trainer models.TrainerInfo) error
 	CancelSchedule(id int, times []string) error
+	StartTraining(trainerID int, date string) error
 }
 
 type TrainerRepo struct {
@@ -82,7 +83,7 @@ func (t *TrainerRepo) ViewAllTrainings(id int) ([]models.Training, error) {
 			FROM client_schedule c 
 			INNER JOIN users u
 			ON c.user_id = u.user_id
-			WHERE c.trainer_id=$1`
+			WHERE c.trainer_id=$1 AND canceled = false and completed = false`
 	rows, err := t.db.Query(query, id)
 	if err != nil {
 		fmt.Println("repo: View All Trainings: ", err.Error())
@@ -96,6 +97,9 @@ func (t *TrainerRepo) ViewAllTrainings(id int) ([]models.Training, error) {
 		if err != nil {
 			fmt.Println(err.Error())
 			return trainings, err
+		}
+		if time.Now().After(date.Add(time.Hour)) {
+			continue
 		}
 		training.Date = date.Format("2006-01-02 15:04:05")
 		training.Row = i
@@ -147,6 +151,17 @@ func (t *TrainerRepo) CancelSchedule(id int, times []string) error {
 			fmt.Printf("trainer repo: CancleSchedule: %s", err.Error())
 			return err
 		}
+	}
+	return nil
+}
+
+func (t *TrainerRepo) StartTraining(trainerID int, date string) error {
+	query := `UPDATE client_schedule
+			SET completed = true
+			WHERE trainer_id = $1 AND date = $2`
+	_, err := t.db.Exec(query, trainerID, date)
+	if err != nil {
+		return fmt.Errorf("repo: StartTraining(): %w", err)
 	}
 	return nil
 }

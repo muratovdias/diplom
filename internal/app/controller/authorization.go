@@ -55,13 +55,22 @@ func (h *Handler) SignUpPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	var resp models.Response
 	w.Header().Set("Content-Type", "application/json")
 	err := h.service.CreateUser(user)
 	if err != nil {
-		w.Write([]byte("status: fail"))
+		resp.Code = 400
+		resp.Message = err.Error()
+		// fmt.Println(resp)
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		return
 	}
-	if err := json.NewEncoder(w).Encode(user); err != nil {
+	resp.Code = 200
+	resp.Message = "created"
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

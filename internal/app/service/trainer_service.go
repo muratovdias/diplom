@@ -14,6 +14,7 @@ type Trainer interface {
 	ViewAllTrainings(id int) ([]models.Training, error)
 	UpdateTrainerInfo(trainer models.TrainerInfo) error
 	CancelSchedule(id int, times []string) error
+	StartTraining(trainerID int, date string) error
 }
 
 type TrainerService struct {
@@ -70,4 +71,8 @@ func (t *TrainerService) UpdateTrainerInfo(trainer models.TrainerInfo) error {
 		trainer.Instagram = "NO"
 	}
 	return t.repo.UpdateTrainerInfo(trainer)
+}
+
+func (t *TrainerService) StartTraining(trainerID int, date string) error {
+	return t.repo.StartTraining(trainerID, date)
 }

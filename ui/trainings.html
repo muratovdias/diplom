@@ -10,7 +10,7 @@
         .table-container{
             display: flex;
             justify-content: center;
-            margin-top: 13%;
+            margin-top: 10%;
             margin-left: 10%;
             width: 80%;
         }
@@ -68,9 +68,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">Note</th>
                 <th scope="col">Date</th>
-                {{if eq .User.Role "client"}}
                 <th scope="col">Action</th>
-                {{end}}
               </tr>
             </thead>
             <tbody>
@@ -80,13 +78,22 @@
                 <td>{{.Name}}</td>
                 <td>{{.Note}}</td>
                 <td>{{.Date}}</td>
-                {{if eq .Role "trainer"}}
                 <td>
+                  {{if eq .Role "trainer"}}
                     <form action="/cancel-training/?date={{.Date}}" method="post">
                         <button type="submit" class="btn btn-warning">Cancel</button>
                     </form>
+                  {{end}}
+                  {{if eq .Role "client"}}
+                    {{if .Status}}
+                      Started
+                    {{else}}
+                      <form action="/start-training/?date={{.Date}}" method="post">
+                        <button type="submit" class="btn btn-primary">Start</button>
+                      </form>
+                    {{end}}
+                  {{end}}
                 </td>
-                {{end}}
               </tr>
             {{end}}
             {{else}}

@@ -35,7 +35,9 @@ type TrainerInfo struct {
 }
 
 type Trainers struct {
-	ID         int    `json:"id"`
+	ID         int `json:"id"`
+	Likes      int
+	Dislikes   int
 	FullName   string `json:"fullname"`
 	Speciality string `json:"speciality"`
 	Img        template.URL
@@ -64,11 +66,12 @@ type MainPage struct {
 }
 
 type Training struct {
-	Row  int
-	Name string
-	Note string
-	Date string
-	Role string
+	Row    int
+	Name   string
+	Note   string
+	Date   string
+	Role   string
+	Status string
 }
 
 type TrainerHomePage struct {
@@ -100,7 +103,10 @@ type Response struct {
 }
 
 type Stats struct {
+	User      User
 	All       int
 	Canceled  int
 	Completed int
+	Missed    int
+	Trainings []Training
 }

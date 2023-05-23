@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="/ui/css/sign-up.css">
+    <!-- <link rel="stylesheet" type="text/css" href="/ui/css/sign-up.css"> -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Ajax -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
@@ -157,14 +157,15 @@
         })
         .then(response => response.json())
         .then(data => {
-            if(data.id != 0){
+            console.log(data.code)
+            if(data.code != 200){
                 throw new Error(data.message)
             }
-            console.log('Success:', data)
             window.location.href = "/auth/sign-in"
         })
         .catch(error => {
-            window.location.href = "/auth/sign-in"
+            alert(error)
+            // window.location.href = "/auth/sign-in"
             // console.log(error, "eee")
         } );
     })

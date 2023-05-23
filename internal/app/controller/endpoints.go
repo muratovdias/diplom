@@ -40,6 +40,9 @@ func InitRoutes(h *Handler) *chi.Mux {
 		r.Post("/create-commet/", h.CreateComment)
 		r.Post("/delete-comment/", h.DeleteComment)
 		r.Get("/client/my-stats", h.MyStats)
+		r.Post("/start-training/", h.StartTraining)
+		r.Post("/like/trainer/{id}", h.LikeTrainer)
+		r.Post("/dislike/trainer/{id}", h.DislikeTrainer)
 
 	})
 	r.Group(func(r chi.Router) {

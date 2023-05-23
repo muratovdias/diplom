@@ -77,5 +77,20 @@ const (
 		date VARCHAR,
 		FOREIGN KEY (author_id) REFERENCES users (user_id)
 	);
+
+	CREATE TABLE IF NOT EXISTS likes(
+		client_id INT NOT NULL,
+		trainer_id INT NOT NULL,
+		FOREIGN KEY (client_id) REFERENCES users(user_id),
+		FOREIGN KEY (trainer_id) REFERENCES users(user_id)
+	);
+
+	CREATE TABLE IF NOT EXISTS dislikes(
+		client_id INT NOT NULL,
+		trainer_id INT NOT NULL,
+		FOREIGN KEY (client_id) REFERENCES users(user_id),
+		FOREIGN KEY (trainer_id) REFERENCES users(user_id)
+	);
+
 	`
 )
